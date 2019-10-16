@@ -1,0 +1,24 @@
+service: uptime-percentage-calculator
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: production
+  region: us-east-1
+  timeout: 300
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "cloudwatch:GetMetricStatistics"
+      Resource: "*"
+
+functions:
+  cron:
+    handler: handler.run
+    environment:
+      HookUrl: ${ssm:SlackWebhook~true}
+      slackChannel: "#notice"
+      HealthcheckId: "your_healthcheck_id"
+    events:
+      - schedule: cron(5 0 ? * MON *)
